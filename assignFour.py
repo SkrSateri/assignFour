@@ -1,3 +1,5 @@
+import math
+
 key = input("Please enter your key >")
 alphabet = ["A","B","C","D","E","F","G","H","I","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
 #print(len(key))
@@ -43,6 +45,20 @@ def get_letter_multi_index():# To get a letter's index in multidim. matrix
     row = int(matrix.index("Z")/5)
     column = matrix.index("Z")%5
 
+def get_letter_multi_index_column(l):
+    row = 0
+    row = int(matrix.index(l)%5)
+    return row
+
+def get_letter_multi_index_row(l):
+    column = 0
+    #index = matrix.index(l)+1
+    #print("Index of " + l + " => " + str(index))
+    #result = (matrix.index(l)+1)/5
+    #print("result of " + l + "s funchtion is => " + str(result))
+    column = math.ceil((matrix.index(l)+1)/5)
+    return column - 1
+
 def init_matrix(k):# to initialise one dinensional matrix to use in decyription and encryption
     k = convert_key(k)
     for y in k:
@@ -65,7 +81,7 @@ def convert_plain_input(plainI):# This function is going to convert a plain inpu
     tempText = ""
     isLettersSame = False
     indexTracker = 0
-    plainILength = len(plainI)
+    plainILength = 0
     #first convertion rule for changing letter j and 
     #removing numbers + symbols from it
     for x in plainI:
@@ -73,6 +89,7 @@ def convert_plain_input(plainI):# This function is going to convert a plain inpu
             workableT = workableT + "I"
         elif x != x.upper():
             workableT = workableT + x.upper()
+    plainILength = len(workableT)
     while (indexTracker < plainILength):
         try:
             twoLetters = workableT[indexTracker] + workableT[indexTracker + 1 ]
@@ -95,17 +112,56 @@ def convert_plain_input(plainI):# This function is going to convert a plain inpu
     return workableT
     
 def encrypt_plain_input(plainI):
-    print("to be continue")
+    indexTracker = 0
+    encryptedText = ""
+    twoLetters = ""
+    letterOne = ""
+    letterTwo = ""
+    plainILength = len(plainI)
+    while (indexTracker < plainILength):
+        twoLetters = plainI[indexTracker] + plainI[indexTracker+1]
+        letterOne = twoLetters[0]
+        letterOneColumn = get_letter_multi_index_column(letterOne)
+        letterOneRow = get_letter_multi_index_row(letterOne)
+        letterTwo = twoLetters[1]
+        letterTwoColumn = get_letter_multi_index_column(letterTwo)
+        letterTwoRow = get_letter_multi_index_row(letterTwo)
+        print(twoLetters)
+        print(get_letter_multi_index_column(twoLetters[0]))#error here you cant get the column right
+        print(get_letter_multi_index_column(twoLetters[1]))
+        if letterOneColumn == letterTwoColumn: #if both letters are in same column
+            print("in same column")
+            if letterOneRow + 1 > 4:
+                encryptedText = encryptedText + fiveDMatrix[0][letterOneColumn] + fiveDMatrix[letterTwoRow + 1][letterTwoColumn]
+            elif letterTwoRow + 1 > 4:
+                encryptedText = encryptedText + fiveDMatrix[letterOneRow + 1][letterOneColumn] + fiveDMatrix[0][letterTwoColumn]
+            else:
+                encryptedText = encryptedText + fiveDMatrix[letterOneRow + 1][letterOneColumn] + fiveDMatrix[letterTwoRow + 1][letterTwoColumn]
+        elif letterOneRow == letterTwoRow: # if both letters are in same row
+            print("in same row")
+            if letterOneColumn + 1 > 4:
+                encryptedText = encryptedText + fiveDMatrix[letterOneRow][0] + fiveDMatrix[letterTwoRow][letterTwoColumn + 1]
+            elif letterTwoColumn + 1 > 4:
+                encryptedText = encryptedText + fiveDMatrix[letterOneRow][letterOneColumn + 1] + fiveDMatrix[letterTwoRow][0]
+            else:
+                print("both letters are in same row rule else section")
+                encryptedText = encryptedText + fiveDMatrix[letterOneRow][letterOneColumn + 1] + fiveDMatrix[letterTwoRow][letterTwoColumn + 1]
+        else:
+            print("cross rule")
+            encryptedText = encryptedText + fiveDMatrix[letterOneRow][letterTwoColumn] + fiveDMatrix[letterTwoRow][letterOneColumn]
+        indexTracker = indexTracker + 2
+    print(encryptedText)
 
 # Main events start from here
 
 init_matrix(key)
 fiveDMatrix = conver_to_multiverse_list(matrix)
 print_multi_matrix(fiveDMatrix)
+print(matrix)
 
 while exitApplication == False:
     operation = input("Please choose operation (1) Encrypt (2) De-crypt > ")
     plainInput = input("Enter plain input > ")
     plainInput = convert_plain_input(plainInput)
     print(plainInput)
-    
+    encrypt_plain_input(plainInput)
